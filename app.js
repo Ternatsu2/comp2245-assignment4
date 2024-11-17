@@ -1,21 +1,29 @@
 document.addEventListener("DOMContentLoaded", () => {
     const searchBtn = document.getElementById("searchBtn");
+    const searchInput = document.getElementById("search");
+    const resultDiv = document.getElementById("result");
+    const loadingDiv = document.getElementById("loading");
 
-    //click event listener
     searchBtn.addEventListener("click", () => {
-        fetch("superheroes.php")
+        const query = searchInput.value.trim();
+        const url = query ? `superheroes.php?query=${encodeURIComponent(query)}` : `superheroes.php`;
+
+        // Clear previous results and show loading
+        resultDiv.innerHTML = '';
+        loadingDiv.classList.remove("hidden");
+
+        fetch(url)
             .then(response => {
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                }
+                if (!response.ok) throw new Error("Network response was not ok");
                 return response.text();
             })
             .then(data => {
-                //Displays the list of superheroes in an alert box
-                alert(data);
+                loadingDiv.classList.add("hidden");
+                resultDiv.innerHTML = data;
             })
             .catch(error => {
-                console.error("There was a problem with the fetch operation:", error);
+                loadingDiv.classList.add("hidden");
+                resultDiv.innerHTML = `<p class="not-found">An error occurred: ${error.message}</p>`;
             });
     });
 });
